@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {CartComponent} from './Cart.js'
 import {ShopComponent} from './Shop.js'
-import {generateNavBarComponent} from './NavBar.js'
+import {NavBarComponent, defaultNavBarItems} from './NavBar.js'
 import './index.css';
 
 
@@ -12,21 +12,26 @@ class Body extends React.Component {
     this.state = {}
     this.state.stockList = []
     this.state.shoppingList = []
+
+    this.state.showShop = true;
+    this.state.showCart = false;
     this.init()
   }
   init(){
-    this.getCart().then( (resp) => {
-      if(resp.cart != null)
+    let promise1 = this.getCart().then( (resp) => {
+      if(resp!= null && resp.cart != null)
       {
         this.setState(Object.assign(this.state.shoppingList, resp.cart))
       }
     })
-    this.getStock().then( (stock) => {
+    let promise2 = this.getStock().then( (stock) => {
       if(stock != null)
       {
         this.setState(Object.assign(this.state.stockList, stock))
       }
     })
+    return Promise.all([promise1, promise2])
+
   }
   getStock()
   {
@@ -73,13 +78,38 @@ class Body extends React.Component {
     )
     
   }
+  handleNavChange(navBarItem)
+  {
+    this.init().finally( () => {
+    if(navBarItem.name ==="My Cart")
+      {
+        this.setState(Object.assign(this.state, {showShop: false, showCart: true}))
+      }
+    else if(navBarItem.name ==="Shop")
+      {
+        this.setState(Object.assign(this.state, {showShop: true, showCart: false}))
+      }
+    })
+    
+    
+
+  }
+  renderShop()
+  {
+    return <ShopComponent stockList={this.state.stockList}></ShopComponent>
+  }
+  renderCart()
+  {
+    return <CartComponent shoppingList={this.state.shoppingList}></CartComponent>
+  }
   render() {
     return (
       
       <div>
-        {generateNavBarComponent()}
-        <ShopComponent stockList={this.state.stockList}></ShopComponent>
-        <CartComponent shoppingList={this.state.shoppingList}></CartComponent>
+        <NavBarComponent onNavChange={this.handleNavChange.bind(this)} navBarItems ={defaultNavBarItems} />
+        {this.state.showShop? this.renderShop.bind(this)() : null}
+        {this.state.showCart? this.renderCart.bind(this)() : null}
+        
       </div>
     );
   }

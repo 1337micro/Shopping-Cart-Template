@@ -22,7 +22,7 @@ app.use(session(
 )
 
 app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "http://localhost:3000");// just to simplify development, would need to be changed for production
+  res.header("Access-Control-Allow-Origin", "http://70.30.166.248:3000");// just to simplify development, would need to be changed for production
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   res.header("Access-Control-Allow-Credentials", "true");
   next();
@@ -116,6 +116,9 @@ app.post('/addToCart', (req, res) => {
           }
         }
       })
+      .then( (resp) =>{
+        res.status(200).send(resp)
+      } )
       .catch((error)=>{
         res.status(400).send(error)
         console.error(error)

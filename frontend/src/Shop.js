@@ -18,6 +18,7 @@ class ShopComponent extends React.Component {
     render() {
       return (
           <div>
+              <h1>Store</h1>
             {this.state.stockList.map( 
                 (item, index) => {
                     return this.renderItem(item.name, item.description, item.price, index)

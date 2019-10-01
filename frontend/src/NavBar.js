@@ -14,14 +14,18 @@ class NavBarComponent extends React.Component {
     componentDidMount(){
       console.log("Item mounted")
     }
+    handleNavBarItemPressed(navBarItem)
+    {
+      this.props.onNavChange(navBarItem)
+    }
     renderNavBarItem(navBarItem, key){
         return (
-        <span key={key} className="navBarItemPaddingRight">
-            
-            <img src={navBarItem.iconUrl}></img>{navBarItem.name} 
-            
-            
-        </span>)
+        <span className="navBarItemPaddingRight" key={key}>
+        <button onClick={this.handleNavBarItemPressed.bind(this, navBarItem)}>            
+            <img src={navBarItem.iconUrl}></img>{navBarItem.name}
+        </button>
+        </span>
+        )
     }
     render() {
       return (
@@ -39,9 +43,6 @@ class NavBarComponent extends React.Component {
 
 
   const defaultNavBarItems = [new NavBarItem("My Cart", "shopping-cart-24.png"),
-  new NavBarItem("Shop", "shopping-bag-32.png")]
-  function generateNavBarComponent(navBarItems = defaultNavBarItems)
-  {
-      return (<NavBarComponent navBarItems ={navBarItems} />)
-  }
-export {generateNavBarComponent};
+  new NavBarItem("Shop", "shopping-bag-24.png")]
+
+export {NavBarComponent, defaultNavBarItems};
