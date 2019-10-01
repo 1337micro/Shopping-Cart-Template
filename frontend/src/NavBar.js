@@ -14,9 +14,9 @@ class NavBarComponent extends React.Component {
     componentDidMount(){
       console.log("Item mounted")
     }
-    renderNavBarItem(navBarItem){
+    renderNavBarItem(navBarItem, key){
         return (
-        <span class="">
+        <span key={key} className="">
             
             <img src={navBarItem.iconUrl}></img>{navBarItem.name} 
             
@@ -25,9 +25,9 @@ class NavBarComponent extends React.Component {
     }
     render() {
       return (
-          <nav class="navBarBackgroundColor ">
-            {this.state.navBarItems.map((navBarItem)=>{
-                return this.renderNavBarItem(navBarItem)
+          <nav className="navBarBackgroundColor ">
+            {this.state.navBarItems.map((navBarItem, index)=>{
+                return this.renderNavBarItem(navBarItem, index)
             })}
           </nav>
           

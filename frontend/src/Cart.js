@@ -6,7 +6,7 @@ class CartComponent extends React.Component {
     constructor(props) {
       super(props)
       this.state = {}
-      this.state.shoppingList = props.shoppingList || [new Item("Item1", "desc1", "21.90$"), new Item("Item2", "desc2", "1.90$")]
+      this.state.shoppingList = props.shoppingList || [new Item("Item1", "desc1", 21.90), new Item("Item2", "desc2", 1.90)]
     }
     componentDidMount(){
       console.log("Cart mounted")
