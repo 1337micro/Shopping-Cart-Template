@@ -71,7 +71,6 @@ app.get('/stock', (req, res) => {
   });
 })
 app.post('/addToCart', (req, res) => {
-  req.session.wtf = 2
   const client = new MongoClient(uri, { useNewUrlParser: true });
   client.connect(err => {
     const collection = client.db("store").collection("carts");
