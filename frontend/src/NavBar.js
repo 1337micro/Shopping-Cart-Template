@@ -16,7 +16,7 @@ class NavBarComponent extends React.Component {
     }
     renderNavBarItem(navBarItem, key){
         return (
-        <span key={key} className="">
+        <span key={key} className="navBarItemPaddingRight">
             
             <img src={navBarItem.iconUrl}></img>{navBarItem.name} 
             
@@ -38,7 +38,8 @@ class NavBarComponent extends React.Component {
 
 
 
-  const defaultNavBarItems = [new NavBarItem("My Cart", "shopping-cart-24.png")]
+  const defaultNavBarItems = [new NavBarItem("My Cart", "shopping-cart-24.png"),
+  new NavBarItem("Shop", "shopping-bag-32.png")]
   function generateNavBarComponent(navBarItems = defaultNavBarItems)
   {
       return (<NavBarComponent navBarItems ={navBarItems} />)

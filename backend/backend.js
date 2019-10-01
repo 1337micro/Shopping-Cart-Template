@@ -3,6 +3,9 @@ const dotenv = require('dotenv').config('./');
 const Constants = require('./Constants.js')
 const express = require('express')
 const session = require('express-session')
+const bodyParser = require('body-parser');
+
+
 
 const MongoClient = require('mongodb').MongoClient;
 
@@ -10,14 +13,25 @@ const app = express()
 const port = 3001
 
 const uri = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-8m6pw.mongodb.net/test?retryWrites=true&w=majority`;
-app.use(session({secret:"3234e234r23rfw34t3tg"}))
+app.use(bodyParser.text({type: '*/*'}));
+app.use(session(
+  {secret:"3234e234r23rfw34t3tg", 
+  cookie: { path: '/', httpOnly: true, secure: false, maxAge: null }
+}
+)
+)
+
 app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");// just to simplify development, would need to be changed for production
+  res.header("Access-Control-Allow-Origin", "http://localhost:3000");// just to simplify development, would need to be changed for production
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header("Access-Control-Allow-Credentials", "true");
   next();
 });
 //add post to cart
 //show cart in browser
+app.get('/', (req, res)=>{
+  req.session.save()
+})
 app.get('/cart', (req, res) => {
   const client = new MongoClient(uri, { useNewUrlParser: true });
   client.connect(err => {
@@ -28,13 +42,90 @@ app.get('/cart', (req, res) => {
         res.status(200).send(cart)
       })
       .catch((error)=>{
-        res.status(200).send(error)
+        res.status(400).send(error)
         console.error(error)
       })
+      .finally(()=>{
+        req.session.save()
+        client.close()
+      })
   });
+})
+app.get('/stock', (req, res) => {
+  const client = new MongoClient(uri, { useNewUrlParser: true });
+  client.connect(err => {
+   
+    const collection = client.db("stock").collection("items");
+    collection.find().toArray()
+      .then( (items) => {
+        res.status(200).send(items)
+      })
+      .catch((error)=>{
+        res.status(400).send(error)
+        console.error(error)
+      })
+      .finally(()=>{
+        req.session.save()
+        client.close()
+      })
+  });
+})
+app.post('/addToCart', (req, res) => {
+  req.session.wtf = 2
+  const client = new MongoClient(uri, { useNewUrlParser: true });
+  client.connect(err => {
+    const collection = client.db("store").collection("carts");
+    let item = req.body
+    if(item !== "" && item != null)
+    {
+      item = JSON.parse(item)
+    }
+    if(item.quantity == undefined || item.quantity === 0)
+          {
+            item.quantity = 1;
+          }
+          else
+          {
+            item.quantity++;
+          }
 
- 
-
+    const visitorSessionId = req.sessionID;
+    collection.findOne({sessionID:visitorSessionId})
+      .then( (items) => {
+        
+        if(items == null)
+        {
+          //no cart yet
+          let cart = [item]
+          return collection.insertOne({sessionID: visitorSessionId, cart: cart})
+        }
+        else
+        {
+          let cart = items.cart;
+          let indexOfitemInCart = cart.map(item => item.name).indexOf(item.name)
+          if(indexOfitemInCart !== -1)
+          {
+            //item already present in cart, increase quantity
+            cart[indexOfitemInCart].quantity++
+            return collection.updateOne({sessionID: visitorSessionId},{$set:{cart: cart}})
+          }
+          else
+          {
+             //item not in cart
+             cart.push(item)
+             return collection.updateOne({sessionID: visitorSessionId}, {$set:{cart: cart}})
+          }
+        }
+      })
+      .catch((error)=>{
+        res.status(400).send(error)
+        console.error(error)
+      })
+      .finally(()=>{
+        req.session.save()
+        client.close()
+      })
+  });
 })
 
 
