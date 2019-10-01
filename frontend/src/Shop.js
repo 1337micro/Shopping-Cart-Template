@@ -12,7 +12,7 @@ class ShopComponent extends React.Component {
       
     }
     renderItem(name, description, price, key){
-        return <ItemComponent name={name} description={description} price={price} key={key} />
+        return <ItemComponent name={name} description={description} price={price} isShop={true} key={key} />
     }
   
     render() {

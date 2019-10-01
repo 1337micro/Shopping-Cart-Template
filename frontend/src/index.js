@@ -15,10 +15,10 @@ class Body extends React.Component {
     this.init()
   }
   init(){
-    this.getCart().then( (cart) => {
-      if(cart != null)
+    this.getCart().then( (resp) => {
+      if(resp.cart != null)
       {
-        this.setState(Object.assign(this.state.shoppingList, cart))
+        this.setState(Object.assign(this.state.shoppingList, resp.cart))
       }
     })
     this.getStock().then( (stock) => {

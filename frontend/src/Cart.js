@@ -11,8 +11,8 @@ class CartComponent extends React.Component {
     componentDidMount(){
       console.log("Cart mounted")
     }
-    renderItem(name, description, key){
-        return <ItemComponent name={name} description={description} key={key} />
+    renderItem(name, description, price, quantity, key){
+        return <ItemComponent name={name} description={description} isCart={true} price={price} quantity={quantity} key={key} />
     }
   
     render() {
@@ -20,7 +20,7 @@ class CartComponent extends React.Component {
           <div>
             {this.state.shoppingList.map( 
                 (item, index) => {
-                    return this.renderItem(item.name, item.description, index)
+                    return this.renderItem(item.name, item.description, item.price, item.quantity, index)
                 } 
             )}
           </div>
