@@ -129,6 +129,7 @@ app.post('/addToCart', (req, res) => {
       })
   });
 })
+
 app.post('/removeFromCart', (req, res) => {
   const client = new MongoClient(uri, { useNewUrlParser: true });
   client.connect(err => {
@@ -138,16 +139,6 @@ app.post('/removeFromCart', (req, res) => {
     {
       item = JSON.parse(item)
     }
-
-    if(item.quantity == undefined || item.quantity === 0)
-    {
-      item.quantity = 1;
-    }
-    else
-    {
-      item.quantity++;
-    }
-
 
     const visitorSessionId = req.sessionID;
     collection.findOne({sessionID:visitorSessionId})
@@ -165,8 +156,13 @@ app.post('/removeFromCart', (req, res) => {
           let indexOfitemInCart = cart.map(item => item.name).indexOf(item.name)
           if(indexOfitemInCart !== -1)
           {
-            //item already present in cart, reduce quantity
-            cart[indexOfitemInCart].quantity--;
+            //item already present in cart
+            if(cart[indexOfitemInCart].quantity>0)
+            {
+              //reduce quantity if more than 0 items exist
+              cart[indexOfitemInCart].quantity--;
+            }
+            
             return collection.updateOne({sessionID: visitorSessionId},{$set:{cart: cart}})
           }
           else

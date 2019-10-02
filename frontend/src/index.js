@@ -148,7 +148,7 @@ class Body extends React.Component {
         .then(() =>{
           let index = this.state.shoppingList.map(item=>item.name).indexOf(item.name)
           const shoppingListDeepCopy = JSON.parse(JSON.stringify(this.state.shoppingList))
-          if(shoppingListDeepCopy[index])
+          if(shoppingListDeepCopy[index].quantity>0)
           {
             shoppingListDeepCopy[index].quantity--;
           }     
