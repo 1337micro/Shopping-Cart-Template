@@ -22,7 +22,7 @@ app.use(session(
 )
 
 app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "http://70.30.166.248:3000");// just to simplify development, would need to be changed for production
+  res.header("Access-Control-Allow-Origin", "http://"+req.host+":3000");// just to simplify development, would need to be changed for production
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   res.header("Access-Control-Allow-Credentials", "true");
   next();
@@ -79,7 +79,7 @@ app.post('/addToCart', (req, res) => {
     {
       item = JSON.parse(item)
     }
-    if(item.quantity == undefined || item.quantity === 0)
+    if(item.quantity == undefined || item.quantity === 0|| item.quantity==='')
           {
             item.quantity = 1;
           }
@@ -128,6 +128,67 @@ app.post('/addToCart', (req, res) => {
         client.close()
       })
   });
+})
+app.post('/removeFromCart', (req, res) => {
+  const client = new MongoClient(uri, { useNewUrlParser: true });
+  client.connect(err => {
+    const collection = client.db("store").collection("carts");
+    let item = req.body
+    if(item !== "" && item != null)
+    {
+      item = JSON.parse(item)
+    }
+
+    if(item.quantity == undefined || item.quantity === 0)
+    {
+      item.quantity = 1;
+    }
+    else
+    {
+      item.quantity++;
+    }
+
+
+    const visitorSessionId = req.sessionID;
+    collection.findOne({sessionID:visitorSessionId})
+      .then( (items) => {
+        
+        if(items == null)
+        {
+          //no cart yet...
+          throw new Error("No cart")
+         
+        }
+        else
+        {
+          let cart = items.cart;
+          let indexOfitemInCart = cart.map(item => item.name).indexOf(item.name)
+          if(indexOfitemInCart !== -1)
+          {
+            //item already present in cart, reduce quantity
+            cart[indexOfitemInCart].quantity--;
+            return collection.updateOne({sessionID: visitorSessionId},{$set:{cart: cart}})
+          }
+          else
+          {
+            throw new Error("Item not in cart")
+          }
+        }
+      })
+      .then( (resp) =>{
+        res.status(200).send(resp)
+      } )
+      .catch((error)=>{
+        res.status(400).send(error)
+        console.error(error)
+      })
+      .finally(()=>{
+        req.session.save()
+        client.close()
+      })
+
+
+    })
 })
 
 

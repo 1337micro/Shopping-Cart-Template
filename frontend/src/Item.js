@@ -10,45 +10,49 @@ function Item(name, description, price, quantity){
 class ItemComponent extends React.Component {
     constructor(props) {
       super(props)
-      this.state = new Item(props.name, props.description, props.price, props.quantity)
+      this.state = props.item
+      
       this.state.isShop = props.isShop || false
       this.state.isCart = props.isCart || false
     }
     componentDidMount(){
       console.log("Item mounted")
     }
-
-    handleAddToCart()
+    componentDidUpdate(prevProps, prevState, snapshot)
     {
-      window.fetch('http://localhost:3001/addToCart', {
-        method: 'post',
-        headers: {
-          'Accept': 'application/json, text/plain, */*',
-          'Content-Type': "application/json; charset=utf-8"
-        },
-        
-        credentials: "include",
-        
-        body: JSON.stringify(this.state)
-      }).then(res=>res.json())
-        .then(res => console.log(res));
+      if(this.props.item != prevProps.item)
+      {
+        this.setState(Object.assign(this.state,this.props.item))
+      }
     }
+    
     renderShopItem()
     {
       return (<div>
         <h3>{this.state.name} </h3>
-        {this.state.description}. Price: {this.state.price}$ <button onClick={this.handleAddToCart.bind(this)}>Add to Cart</button>
+        {this.state.description}. Price: {this.state.price}$ 
+          <button onClick={()=>this.props.handleAddToCart(this.state)}>Add to Cart</button>
         </div>)
     }
     renderCartItem()
     {
       return (<div>
         <h3>{this.state.name} </h3>
-        {this.state.description}. Price: {this.state.price}$ Quantity: {this.state.quantity}
+        {this.state.description}. Price: {this.state.price}$ Quantity: {this.renderQuantitySubtractButton()} {this.state.quantity} {this.renderQuantityAddButton()}
         </div>)
     }
 
+    renderQuantityAddButton()
+    {
+      return (<button onClick={this.props.handleAddToCart.bind(this, this.state)}>+</button>)
+    }
+    renderQuantitySubtractButton()
+    {
+      return (<button onClick={this.props.handleRemoveItem.bind(this, this.state)}>-</button>)
+    }
+
     render() {
+      console.log("reloading items")
       return (
           <div>
             {this.state.isShop ? this.renderShopItem.bind(this)() : null}

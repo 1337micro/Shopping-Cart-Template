@@ -10,6 +10,7 @@ class Body extends React.Component {
   constructor(props) {
     super(props)
     this.state = {}
+    this.state.compName= "Body"
     this.state.stockList = []
     this.state.shoppingList = []
 
@@ -35,7 +36,7 @@ class Body extends React.Component {
   }
   getStock()
   {
-    return window.fetch("http://localhost:3001/stock", {
+    return window.fetch("http://70.30.166.248:3001/stock", {
       credentials: "include"
     })
     .then( (response) => {
@@ -56,7 +57,7 @@ class Body extends React.Component {
     )
   }
   getCart(){
-    return window.fetch("http://localhost:3001/cart",{
+    return window.fetch("http://70.30.166.248:3001/cart",{
       credentials: "include"
     })
     .then( (response) => {
@@ -94,15 +95,82 @@ class Body extends React.Component {
     
 
   }
+  handleAddToCart(item)
+    {
+      return window.fetch('http://70.30.166.248:3001/addToCart', {
+        method: 'post',
+        headers: {
+          'Accept': 'application/json, text/plain, */*',
+          'Content-Type': "application/json; charset=utf-8"
+        },
+        
+        credentials: "include",
+        
+        body: JSON.stringify(item)
+      }).then(res=>res.json())
+        .then(res => {
+          let index = this.state.shoppingList.map(item=>item.name).indexOf(item.name)
+          const shoppingListDeepCopy = JSON.parse(JSON.stringify(this.state.shoppingList))
+          if(shoppingListDeepCopy[index])
+          {
+            shoppingListDeepCopy[index].quantity++;
+          }
+          else
+          {
+            console.log("ee")
+          }
+          this.setState(Object.assign(this.state, {shoppingList:shoppingListDeepCopy}));
+          console.log(res)
+        });
+    }
+    requestRemoveFromCart(item)
+    {
+      return window.fetch('http://70.30.166.248:3001/removeFromCart', {
+        method: 'post',
+        headers: {
+          'Accept': 'application/json, text/plain, */*',
+          'Content-Type': "application/json; charset=utf-8"
+        },
+        
+        credentials: "include",
+        
+        body: JSON.stringify(item)
+      }).then(res=>res.json())
+        .then(res => console.log(res));
+    
+    }
+    
+    handleRemoveItem(item)
+    {
+      if(item.quantity >0)
+      {
+        this.requestRemoveFromCart(item)
+        .then(() =>{
+          let index = this.state.shoppingList.map(item=>item.name).indexOf(item.name)
+          const shoppingListDeepCopy = JSON.parse(JSON.stringify(this.state.shoppingList))
+          if(shoppingListDeepCopy[index])
+          {
+            shoppingListDeepCopy[index].quantity--;
+          }     
+          else
+          {
+            console.log("ee")
+          }    
+          this.setState(Object.assign(this.state, {shoppingList:shoppingListDeepCopy}));
+        })
+      }
+    }
+
   renderShop()
   {
-    return <ShopComponent stockList={this.state.stockList}></ShopComponent>
+    return <ShopComponent handleAddToCart={this.handleAddToCart.bind(this)} stockList={this.state.stockList}></ShopComponent>
   }
   renderCart()
   {
-    return <CartComponent shoppingList={this.state.shoppingList}></CartComponent>
+    return <CartComponent handleRemoveItem={this.handleRemoveItem.bind(this)} handleAddToCart={this.handleAddToCart.bind(this)} shoppingList={this.state.shoppingList}></CartComponent>
   }
   render() {
+    console.log("Reloading body")
     return (
       
       <div>

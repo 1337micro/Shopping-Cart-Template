@@ -11,8 +11,8 @@ class ShopComponent extends React.Component {
     componentDidMount(){
       
     }
-    renderItem(name, description, price, key){
-        return <ItemComponent name={name} description={description} price={price} isShop={true} key={key} />
+    renderItem(item, key){
+        return <ItemComponent item={item} handleAddToCart={this.props.handleAddToCart} isShop={true} key={key} />
     }
   
     render() {
@@ -21,7 +21,7 @@ class ShopComponent extends React.Component {
               <h1>Store</h1>
             {this.state.stockList.map( 
                 (item, index) => {
-                    return this.renderItem(item.name, item.description, item.price, index)
+                    return this.renderItem(item, index)
                 } 
             )}
           </div>
